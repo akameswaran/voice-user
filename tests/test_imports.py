@@ -6,7 +6,13 @@ def test_public_api_imports():
         write_audio_file, register_recording, save_recording,
         get_recording, list_recordings, delete_recording,
         UserRecord, SessionRecord, RecordingRecord,
+        AnalysisRecord, save_analysis, get_latest_analysis,
+        list_analyses, delete_analyses,
     )
     assert callable(init_db)
     assert callable(create_user)
     assert callable(save_recording)
+    assert callable(save_analysis)
+    assert callable(get_latest_analysis)
+    assert callable(list_analyses)
+    assert callable(delete_analyses)

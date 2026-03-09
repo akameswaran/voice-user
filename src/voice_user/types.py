@@ -29,3 +29,12 @@ class RecordingRecord(TypedDict):
     duration_s: float | None
     sample_rate: int | None
     metadata: dict
+
+
+class AnalysisRecord(TypedDict):
+    id: str
+    recording_id: str
+    analyzer: str
+    version: str | None
+    created_at: str
+    results: dict
