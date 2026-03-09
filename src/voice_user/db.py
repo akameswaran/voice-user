@@ -46,8 +46,27 @@ def _apply_migration_1(conn: sqlite3.Connection) -> None:
     conn.executescript(_MIGRATION_1_SQL)
 
 
+_MIGRATION_2_SQL = """
+CREATE TABLE analyses (
+    id           TEXT PRIMARY KEY,
+    recording_id TEXT NOT NULL,
+    analyzer     TEXT NOT NULL,
+    version      TEXT,
+    created_at   TEXT NOT NULL,
+    results      JSON NOT NULL,
+    FOREIGN KEY (recording_id) REFERENCES recordings(id) ON DELETE CASCADE
+);
+CREATE INDEX idx_analyses_recording ON analyses(recording_id, analyzer);
+"""
+
+
+def _apply_migration_2(conn: sqlite3.Connection) -> None:
+    conn.executescript(_MIGRATION_2_SQL)
+
+
 _MIGRATIONS = [
     (1, _apply_migration_1),
+    (2, _apply_migration_2),
 ]
 
 

@@ -8,6 +8,13 @@ from .recordings import (
     get_recording, list_recordings, delete_recording,
 )
 from .types import UserRecord, SessionRecord, RecordingRecord
+from .analyses import (
+    AnalysisRecord,
+    save_analysis,
+    get_latest_analysis,
+    list_analyses,
+    delete_analyses,
+)
 
 __all__ = [
     "init_db", "get_db",
@@ -16,4 +23,6 @@ __all__ = [
     "write_audio_file", "register_recording", "save_recording",
     "get_recording", "list_recordings", "delete_recording",
     "UserRecord", "SessionRecord", "RecordingRecord",
+    "AnalysisRecord", "save_analysis", "get_latest_analysis",
+    "list_analyses", "delete_analyses",
 ]
