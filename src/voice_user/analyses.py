@@ -5,18 +5,10 @@ from __future__ import annotations
 import json
 import sqlite3
 from datetime import datetime, timezone
-from typing import TypedDict
 
 from uuid_utils import uuid7
 
-
-class AnalysisRecord(TypedDict):
-    id: str
-    recording_id: str
-    analyzer: str
-    version: str | None
-    created_at: str
-    results: dict
+from .types import AnalysisRecord
 
 
 def _row_to_analysis(row: tuple) -> AnalysisRecord:

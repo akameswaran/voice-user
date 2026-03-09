@@ -53,7 +53,7 @@ CREATE TABLE analyses (
     analyzer     TEXT NOT NULL,
     version      TEXT,
     created_at   TEXT NOT NULL,
-    results      JSON NOT NULL,
+    results      JSON NOT NULL CHECK (json_valid(results)),
     FOREIGN KEY (recording_id) REFERENCES recordings(id) ON DELETE CASCADE
 );
 CREATE INDEX idx_analyses_recording ON analyses(recording_id, analyzer);

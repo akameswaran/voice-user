@@ -7,9 +7,8 @@ from .recordings import (
     write_audio_file, register_recording, save_recording,
     get_recording, list_recordings, delete_recording,
 )
-from .types import UserRecord, SessionRecord, RecordingRecord
+from .types import UserRecord, SessionRecord, RecordingRecord, AnalysisRecord
 from .analyses import (
-    AnalysisRecord,
     save_analysis,
     get_latest_analysis,
     list_analyses,
