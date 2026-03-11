@@ -32,13 +32,23 @@ def save_analysis(
     results: dict,
     version: str | None = None,
 ) -> AnalysisRecord:
-    """Save an analysis result for a recording. Does NOT commit."""
+    """Save an analysis result for a recording. Does NOT commit.
+
+    If results contains 'exercise_type' and 'include_in_session_aggregate',
+    they are stored both in the JSON blob and in indexed columns for querying.
+    """
     aid = str(uuid7())
     now = datetime.now(timezone.utc).isoformat()
+    exercise_type = results.get("exercise_type")
+    include_agg = results.get("include_in_session_aggregate")
+    include_agg_int = int(include_agg) if include_agg is not None else None
+
     conn.execute(
-        """INSERT INTO analyses (id, recording_id, analyzer, version, created_at, results)
-           VALUES (?, ?, ?, ?, ?, ?)""",
-        (aid, recording_id, analyzer, version, now, json.dumps(results)),
+        """INSERT INTO analyses (id, recording_id, analyzer, version, created_at, results,
+                                 exercise_type, include_in_session_aggregate)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+        (aid, recording_id, analyzer, version, now, json.dumps(results),
+         exercise_type, include_agg_int),
     )
     return AnalysisRecord(
         id=aid,
