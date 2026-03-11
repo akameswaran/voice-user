@@ -36,6 +36,9 @@ def save_analysis(
 
     If results contains 'exercise_type' and 'include_in_session_aggregate',
     they are stored both in the JSON blob and in indexed columns for querying.
+
+    Requires schema version >= 3 (migration 3 must have been applied via init_db()).
+    Callers using get_db() on an older database will get OperationalError.
     """
     aid = str(uuid7())
     now = datetime.now(timezone.utc).isoformat()

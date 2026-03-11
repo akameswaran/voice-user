@@ -200,8 +200,8 @@ def test_cascade_delete_recording(conn, recording, rec_dir):
 # ── Migration on existing DB ────────────────────────────────
 
 
-def test_migration_v2_on_existing_v1(tmp_path):
-    """Simulate a v1 DB and verify migration 2 adds analyses table."""
+def test_fresh_db_runs_all_migrations(tmp_path):
+    """Verify init_db() runs all migrations and reaches the current schema version."""
     conn = init_db(tmp_path / "old.db")
     tables = conn.execute(
         "SELECT name FROM sqlite_master WHERE type='table' AND name='analyses'"
