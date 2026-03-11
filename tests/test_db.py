@@ -65,7 +65,7 @@ def test_init_db_creates_recordings_table(tmp_path):
 def test_init_db_sets_version(tmp_path):
     conn = init_db(tmp_path / "test.db")
     version = conn.execute("SELECT MAX(version) FROM schema_version").fetchone()[0]
-    assert version == 2
+    assert version == 3
     conn.close()
 
 
@@ -75,9 +75,9 @@ def test_init_db_idempotent(tmp_path):
     conn1.close()
     conn2 = init_db(db_path)
     version = conn2.execute("SELECT MAX(version) FROM schema_version").fetchone()[0]
-    assert version == 2
+    assert version == 3
     count = conn2.execute("SELECT COUNT(*) FROM schema_version").fetchone()[0]
-    assert count == 2
+    assert count == 3
     conn2.close()
 
 

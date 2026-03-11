@@ -64,9 +64,21 @@ def _apply_migration_2(conn: sqlite3.Connection) -> None:
     conn.executescript(_MIGRATION_2_SQL)
 
 
+_MIGRATION_3_SQL = """
+ALTER TABLE analyses ADD COLUMN exercise_type TEXT;
+ALTER TABLE analyses ADD COLUMN include_in_session_aggregate INTEGER;
+CREATE INDEX IF NOT EXISTS idx_analyses_exercise_type ON analyses(recording_id, exercise_type);
+"""
+
+
+def _apply_migration_3(conn: sqlite3.Connection) -> None:
+    conn.executescript(_MIGRATION_3_SQL)
+
+
 _MIGRATIONS = [
     (1, _apply_migration_1),
     (2, _apply_migration_2),
+    (3, _apply_migration_3),
 ]
 
 

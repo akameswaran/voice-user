@@ -208,5 +208,94 @@ def test_migration_v2_on_existing_v1(tmp_path):
     ).fetchone()
     assert tables is not None
     ver = conn.execute("SELECT MAX(version) FROM schema_version").fetchone()
-    assert ver[0] == 2
+    assert ver[0] == 3
     conn.close()
+
+
+def test_migration_v3_adds_exercise_columns(tmp_path):
+    """Migration 3 adds exercise_type and include_in_session_aggregate columns to analyses."""
+    conn = init_db(tmp_path / "test.db")
+    # Query the column info for the analyses table
+    cols = conn.execute("PRAGMA table_info(analyses)").fetchall()
+    col_names = {row[1] for row in cols}
+    assert "exercise_type" in col_names, "exercise_type column missing from analyses"
+    assert "include_in_session_aggregate" in col_names, "include_in_session_aggregate column missing from analyses"
+    conn.close()
+
+
+def test_migration_v3_index_exists(tmp_path):
+    """Migration 3 creates idx_analyses_exercise_type index."""
+    conn = init_db(tmp_path / "test.db")
+    idx = conn.execute(
+        "SELECT name FROM sqlite_master WHERE type='index' AND name='idx_analyses_exercise_type'"
+    ).fetchone()
+    assert idx is not None, "idx_analyses_exercise_type index not created by migration 3"
+    conn.close()
+
+
+def test_save_analysis_populates_exercise_type_column(conn, recording):
+    """save_analysis() stores exercise_type from results into the indexed column."""
+    results = {"exercise_type": "integration", "score": 75}
+    with conn:
+        save_analysis(conn, recording["id"], "femme_scoring", results)
+    row = conn.execute(
+        "SELECT exercise_type FROM analyses WHERE recording_id = ?",
+        (recording["id"],)
+    ).fetchone()
+    assert row is not None
+    assert row[0] == "integration"
+
+
+def test_save_analysis_populates_include_in_session_aggregate_column(conn, recording):
+    """save_analysis() stores include_in_session_aggregate from results into the indexed column."""
+    results = {"exercise_type": "integration", "include_in_session_aggregate": True, "score": 75}
+    with conn:
+        save_analysis(conn, recording["id"], "femme_scoring", results)
+    row = conn.execute(
+        "SELECT include_in_session_aggregate FROM analyses WHERE recording_id = ?",
+        (recording["id"],)
+    ).fetchone()
+    assert row is not None
+    assert row[0] == 1  # SQLite stores bool as INTEGER (1=True)
+
+
+def test_save_analysis_include_in_session_aggregate_false(conn, recording):
+    """save_analysis() stores include_in_session_aggregate=False as 0 in the DB."""
+    results = {"exercise_type": "range_exploration", "include_in_session_aggregate": False}
+    with conn:
+        save_analysis(conn, recording["id"], "femme_scoring", results)
+    row = conn.execute(
+        "SELECT include_in_session_aggregate FROM analyses WHERE recording_id = ?",
+        (recording["id"],)
+    ).fetchone()
+    assert row is not None
+    assert row[0] == 0  # SQLite stores bool as INTEGER (0=False)
+
+
+def test_save_analysis_exercise_type_none_when_absent(conn, recording):
+    """save_analysis() stores NULL for exercise_type when not in results."""
+    results = {"score": 80}
+    with conn:
+        save_analysis(conn, recording["id"], "femme_scoring", results)
+    row = conn.execute(
+        "SELECT exercise_type, include_in_session_aggregate FROM analyses WHERE recording_id = ?",
+        (recording["id"],)
+    ).fetchone()
+    assert row is not None
+    assert row[0] is None
+    assert row[1] is None
+
+
+def test_exercise_type_column_queryable(conn, recording):
+    """exercise_type column can be used to filter analyses."""
+    with conn:
+        save_analysis(conn, recording["id"], "femme_scoring",
+                      {"exercise_type": "integration", "score": 80})
+        save_analysis(conn, recording["id"], "femme_scoring",
+                      {"exercise_type": "ceiling_probe", "score": 90})
+    rows = conn.execute(
+        "SELECT exercise_type FROM analyses WHERE recording_id = ? AND exercise_type = ?",
+        (recording["id"], "integration")
+    ).fetchall()
+    assert len(rows) == 1
+    assert rows[0][0] == "integration"
