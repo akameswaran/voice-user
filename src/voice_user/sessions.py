@@ -87,13 +87,13 @@ def list_sessions(
         rows = conn.execute(
             "SELECT id, user_id, session_type, started_at, ended_at, duration_s, metrics "
             "FROM sessions WHERE user_id = ? AND session_type = ? "
-            "ORDER BY started_at LIMIT ?",
+            "ORDER BY started_at DESC LIMIT ?",
             (user_id, session_type, limit),
         ).fetchall()
     else:
         rows = conn.execute(
             "SELECT id, user_id, session_type, started_at, ended_at, duration_s, metrics "
-            "FROM sessions WHERE user_id = ? ORDER BY started_at LIMIT ?",
+            "FROM sessions WHERE user_id = ? ORDER BY started_at DESC LIMIT ?",
             (user_id, limit),
         ).fetchall()
     return [_row_to_session(r) for r in rows]
