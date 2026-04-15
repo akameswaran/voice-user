@@ -8,3 +8,23 @@ build/
 # Session management
 .project-archive/
 .archive-queue
+
+# Secrets
+.env
+.env.*
+*.pem
+*.key
+credentials.json
+secrets.*
+
+# Databases
+*.db
+*.sqlite
+*.sqlite-*
+*.sqlite3
+
+# User data
+recordings/
+
+# Node
+node_modules/
